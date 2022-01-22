@@ -1,6 +1,10 @@
 import './sass/main.scss';
 const axios = require('axios');
 import Notiflix from 'notiflix';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+
+
 
 const form = document.querySelector('#search-form');
 const loadMoreBtn = document.querySelector('.load-more');
@@ -8,7 +12,7 @@ let page = 1;
 let currentSearchValue = '';
 const gallery = document.querySelector('.gallery');
 let maxPages = 1;
-
+const lightbox = new SimpleLightbox('.gallery a')
 
 axios.defaults.baseURL = 'https://pixabay.com/api/?key=25354939-b34ef3161dfabf3cda0874337&q=cats';
 
@@ -44,9 +48,11 @@ async function onFormSubmit(e) {
 
         gallery.innerHTML = '';
         renderImages(response.data.hits);
+        Notiflix.Notify.success(`"Hooray! We found ${response.data.totalHits} images."`)
 
         loadMoreBtn.classList.remove('is-hidden')
         
+
     } catch (error) {
         console.log(error);
     }
@@ -58,7 +64,9 @@ async function onFormSubmit(e) {
 function renderImages (images) {
     const markup = images.map(image => {
         return `<div class="photo-card">
+                <a href="${image.largeImageURL}">
                     <img class='image' src="${image.webformatURL}" alt="${image.tags}" loading="lazy" />
+                    </a>
                     <div class="info">
                         <p class="info-item">
                             <b>Likes</b>
@@ -81,6 +89,7 @@ function renderImages (images) {
     }).join('');
 
     gallery.insertAdjacentHTML('beforeend', markup);
+    lightbox.refresh();
 }
 
 async function loadMore() {
